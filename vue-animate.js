@@ -1,24 +1,3 @@
-//图片加载处理
-const picture = (el, binding, callback) => {
-    setTimeout(() => {
-        const img = new Image()
-        const url = binding.value || '' //图片路径
-        const host = window.location.origin || 'http://' + window.location.host //baseUrl
-        img.src = host + '/' + url
-        img.onerror = () => {
-            if (callback) {
-                callback()
-            }
-        }
-        img.onload = () => {
-            el.src = host + '/' + url
-            //回调处理多余逻辑
-            if (callback) {
-                callback()
-            }
-        }
-    }, 700)
-}
 
 //函数防抖
 const debounce = (func, wait) => {
@@ -33,31 +12,35 @@ const debounce = (func, wait) => {
 }
 
 
-//判断图片是否可见
+//判断元素是否可见
 const see =(el,binding)=>{
-    const top = el.getBoundingClientRect().top //滚动距离
-    const wh = window.innerHeight //内容视口高度（ ie8以上兼容）
-    //判读滚动距离是否小于内容视口高，小于执行图片加载函数，大于则添加scroll事件监听
-    if (top < wh) {
-        picture(el, binding)
-    } else {
-        //添加监听，加载完图片则移除事件
-        window.addEventListener('scroll', debounce((that) => {
-            const top = el.getBoundingClientRect().top  //距离
-            if (top < wh) {
-                picture(el, binding, () => {
-                    window.removeEventListener('scroll', that)
-                })
-            }
-        }, 300)
-        )
-    }   
+    const offsetHeight = el.getBoundingClientRect().top //滚动距离游览器可视顶部高度
+    const height = el.getBoundingClientRect().height //元素高度
+    const wh = window.innerHeight //内容视口高度
+    const animateClassName = binding.value || '' //动画类名
+    const className = el.className           //当前类名
+    el.style.visibility = 'hidden'  //隐藏元素
+    //判读初始元素是否可见，可见添加动画类名
+    if(offsetHeight<=wh&&offsetHeight>=-height){
+        el.style.visibility='visible'
+        el.className = className +'' +animateClassName
+    }
+        //监听滚动判读是否可见，可见执行动画，不可见则隐藏
+   window.addEventListener('scroll',debounce(()=>{
+        const offsetHeight = el.getBoundingClientRect().top //滚动距离游览器可视顶部高度
+        if(offsetHeight<=wh&&offsetHeight>=-height){
+            el.style.visibility='visible'
+            el.className = className +'' +animateClassName
+        }else{
+            el.className = className
+            el.style.visibility='hidden'
+        }
+   },300))
 }
-
 
 module.exports = {
     install(Vue) {
-        Vue.directive('src', {
+        Vue.directive('animate', {
             // 当被绑定的元素插入到 DOM 中时激活
             inserted(el, binding) {
                see(el,binding)
