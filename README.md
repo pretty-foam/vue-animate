@@ -4,7 +4,7 @@
 
 \<link data-n-head="true" rel="stylesheet" href="https://cdn.bootcss.com/animate.css/3.5.2/animate.min.css">
 
-### 2.vue中mian.js引入插件
+### 2.vue中main.js引入插件
   <pre>
    const vueAnimate = require('./vue-animate')
    Vue.use(vueAnimate)
